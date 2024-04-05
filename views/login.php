@@ -11,14 +11,15 @@ require_once '../includes/config_session.inc.php';
 <body>
     <div class="container">
         <h2>Login</h2>
-        <form action="../includes/login/login.inc.php" method="POST">
+        <form action="../includes/login/login.inc.php" method="post">--->
+        <!--<form action="../test.php" method="post">-->
             <div class="form-group">
                 <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
+                <input type="text" id="username" name="userna" required>
             </div>
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="pass" required>
             </div>
             <div class="form-group">
                 <button type="submit">Login</button>

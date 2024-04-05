@@ -4,7 +4,7 @@
 function logMessage(string $message, string $level)
 {
     // Define the log file path
-    $logFile = 'logs/login.log';
+    $logFile = 'log.txt';
 
     // Compose the log entry
     $logEntry = "[" . date('Y-m-d H:i:s') . "] [$level]: $message\n";

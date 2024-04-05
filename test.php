@@ -1,10 +1,31 @@
 <?php
-$hash = '$2y$10$N3hrskYfhQ4i9OOJGgSEK.2OTV6G5d78YVYBZ0JklH8RChjoBV3qS'; // Replace with your actual hash
-$password = 'adminpassword'; // Replace with the password you want to verify
+require_once './includes/config_session.inc.php';
+require_once './includes/login/login.model.inc.php';
+require_once './includes/login/login.contr.inc.php';
+require_once './DB/dbconfig.php';
 
-if (password_verify($password, $hash)) {
-    echo 'Password is valid';
-} else {
-    echo 'Password is invalid';
+// test usertype retrieve
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $userna = $_POST['userna'];
+    $pass = $_POST['pass'];
+    verifyInput($userna, $pass);
+    $usertype = loginUser($conn, $userna, $pass);
+    $isAvailableUserName = getUsername($conn, $userna);
+    $isUserLogged = login($conn, $userna, $pass);
+       
+    if ($usertype == "superadmin") {
+        header('Location: views/superadmin.php');
+        exit();
+    } elseif ($usertype == "admin") { // Changed $userType to $usertype
+        header('Location: views/admin.php');
+        exit();
+    } elseif ($usertype == "parent") { // Changed $userType to $usertype
+        header('Location: views/parent.php');
+        exit();
+    } else {
+        // Failed login attempt
+        $_SESSION['login_errors'] = ["incorrect_password" => "Incorrect username or password!"];
+        header("Location: index.php");
+        exit();
+    }
 }
-?>

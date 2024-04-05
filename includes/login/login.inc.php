@@ -2,48 +2,40 @@
 
 // Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $userna = $_POST['userna'];
+    $pass = $_POST['pass'];
 
     try {
         // Require necessary files
         require_once '../../DB/dbconfig.php';
         require_once '../../includes/config_session.inc.php';
-        require_once '../../includes/logger.inc.php'; // Include logger script
+        require_once '../../includes/logger.inc.php';
         require_once '../../includes/login/login.contr.inc.php';
         require_once '../../includes/login/login.model.inc.php';
 
         // Check for empty fields
-        if (isEmpty($username, $password)) {
+        if (isEmpty($userna, $pass)) {
             $_SESSION['login_errors'] = ["empty_inputs" => "Please fill in all fields!"];
             header("Location: ../../index.php");
             exit();
         }
 
         // Attempt to log in the user
-        $usertype = loginUser($conn, $username, $password);
-        if ($usertype) {
-            // Successful login
-            switch ($usertype) {
-                case "admin":
-                    header("Location: ../views/admin.php?login=success");
-                    exit();
-                case "superadmin":
-                    header("Location: ../views/superadmin.php?login=success");
-                    exit();
-                case "parent":
-                    header("Location: ../views/home.php?login=success");
-                    exit();
-                default:
-                    // Handle unknown user types
-                    $_SESSION['login_errors'] = ["unknown_type" => "Unknown user type!"];
-                    header("Location: ../../index.php");
-                    exit();
-            }
+        $usertype = loginUser($conn, $userna, $pass);       ;
+
+        if ($usertype == "superadmin") {
+            header('Location: ../../views/superadmin.php');
+            exit();
+        } elseif ($usertype == "admin") { // Changed $userType to $usertype
+            header('Location: ../../views/admin.php');
+            exit();
+        } elseif ($usertype == "parent") { // Changed $userType to $usertype
+            header('Location: ../../views/home.php');
+            exit();
         } else {
             // Failed login attempt
             $_SESSION['login_errors'] = ["incorrect_password" => "Incorrect username or password!"];
-            header("Location: ../../index.php");
+            header("Location: index.php");
             exit();
         }
     } catch (PDOException $e) {
@@ -55,5 +47,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: ../../index.php");
     exit();
 }
-
-?>

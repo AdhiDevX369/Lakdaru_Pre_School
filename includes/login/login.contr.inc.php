@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 
-// Include the logger script
-require_once '../../includes/logger.inc.php';
-
 // check if the user is logged in
 function isLoggedIn()
 {
@@ -36,13 +33,27 @@ function isEmpty(string $username, string $password)
         return false;
     }
 }
+function userType(object $conn, string $uname)
+{
+    $userType = getUserType($conn, $uname);
+    if ($userType == 1) {
+        return "superadmin";
+    } elseif ($userType == 2) {
+        return "admin";
+    } elseif ($userType == 3) {
+        return "parent";
+    } else {
+        return "false";
+    }
+}
+
 
 
 // Function to handle user login
-function loginUser(object $conn, string $username, string $password)
+function loginUser(object $conn, string $uname,string $pass)
 {
     // Check if username and password are provided
-    if (empty($username) || empty($password)) {
+    if (empty($uname) || empty($pass)) {
         // Log the attempt with empty fields
         $message = "Empty username or password field during login attempt.";
         logMessage($message, 'WARNING');
@@ -50,24 +61,28 @@ function loginUser(object $conn, string $username, string $password)
     }
 
     // Call login function from the model to authenticate user
-    $userType = login($conn, $username, $password);
-
-    // Check the result of login attempt
-    if ($userType === false) {
-        // Log the failed login attempt
-        $message = "Failed login attempt for username: $username";
-        logMessage($message, 'ERROR');
-        return "Invalid username or password.";
-    } else {
-        // Start a session and store user information if login is successful
-        session_start();
-        $_SESSION['username'] = $username;
-        $_SESSION['userType'] = $userType;
-        // Log the successful login attempt
-        $message = "Successful login for username: $username";
-        logMessage($message, 'INFO');
-        return "Login successful.";
+    $isUserLogged = login($conn, $uname, $pass);
+    if($isUserLogged){
+        $userType = userType($conn, $uname);
+        if($userType){
+            // Start session if not already started
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            // Set session variables
+            $_SESSION['username'] = $uname;
+            $_SESSION['userType'] = $userType;
+            
+            return $userType;
+        }else{
+            // Log the failed login attempt
+            $message = "Failed login attempt for username: $uname";
+            logMessage($message, 'ERROR');
+            return "Incorrect username or password!";
+        }
     }
+
+    
 }
 
 // Function to handle user logout
@@ -89,4 +104,7 @@ function logoutUser()
     return "Logout successful.";
 }
 
-?>
+function verifyInput(string $uname,string $password){
+    echo $uname;
+    echo $password;
+}
